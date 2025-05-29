@@ -1,186 +1,363 @@
-# cproto - 通用 Protocol Buffer 编译工具
+# PowerShell Proto Compiler
 
-## 概述
-`cproto` 是一个强大而灵活的 PowerShell 函数，用于编译 Protocol Buffer 文件。它支持 Go、gRPC 和 grpc-gateway 代码生成，并且能够智能地处理各种项目结构和使用场景。
+一个 Protocol Buffers 编译工具，专为 Go 项目设计，支持自动检测项目结构和智能文件编译。
 
-## 功能特点
+## ✨ 功能特性
 
-### ✨ 智能目录检测
-- 自动检测当前是否在 proto 目录或其子目录中
-- 自动检测项目根目录下是否有 proto 子目录
-- 支持复杂的嵌套 proto 目录结构
+- 🔍 **智能项目检测** - 自动识别 proto 目录和项目结构
+- 📁 **多种编译模式** - 支持编译所有文件或指定特定文件
+- 🛤️ **灵活路径支持** - 支持绝对路径、相对路径、文件名等多种输入方式
+- 🚀 **一键生成** - 自动生成 Go、gRPC 和 gRPC-Gateway 代码
+- 📂 **子目录支持** - 完美处理复杂的 proto 目录结构
+- 🎨 **友好输出** - 彩色输出和清晰的错误提示
+- 🌍 **通用性强** - 适用于任何 Go + protobuf 项目
 
-### 📁 多种文件指定方式
-- **绝对路径**: `cproto "C:\path\to\file.proto"`
-- **相对路径**: `cproto "proto/book/book.proto"`
-- **文件名**: `cproto "add"` (自动添加 .proto 扩展名)
-- **完整文件名**: `cproto "add.proto"`
-- **编译所有**: `cproto` (编译目录下所有 .proto 文件)
+## 📋 前置要求
 
-### 🔧 智能依赖处理
-- 自动设置正确的 `--proto_path`，确保能找到所有导入的文件
-- 支持跨目录的 proto 文件依赖关系
-- 处理复杂的导入路径结构
+### 1. 安装 protoc
 
-### 🎯 多代码生成支持
-自动生成以下代码：
-- **Go 结构体**: `--go_out` 和 `--go_opt=paths=source_relative`
-- **gRPC 服务**: `--go-grpc_out` 和 `--go-grpc_opt=paths=source_relative`
-- **grpc-gateway**: `--grpc-gateway_out` 和 `--grpc-gateway_opt=paths=source_relative`
+**Windows:**
 
-### 🌍 UTF-8 支持
-- 自动设置控制台编码为 UTF-8
-- 支持中文路径和文件名
+```bash
+# 使用 Chocolatey
+choco install protoc
 
-## 使用方法
+# 使用 Scoop
+scoop install protobuf
 
-### 基本用法
-
-```powershell
-# 编译所有 proto 文件
-cproto
-
-# 编译单个文件（无扩展名）
-cproto add
-
-# 编译单个文件（带扩展名）
-cproto add.proto
-
-# 使用相对路径
-cproto proto/book/book.proto
-
-# 使用绝对路径
-cproto "C:\path\to\file.proto"
+# 或手动下载：https://github.com/protocolbuffers/protobuf/releases
 ```
 
-### 高级用法
+**macOS:**
 
-```powershell
-# 编译多个文件
-cproto book price author
-
-# 指定 proto 目录
-Compile-AllProtos -ProtoDir "custom_proto_dir" -Files @("file1", "file2")
+```bash
+brew install protobuf
 ```
 
-## 工作场景
+**Linux:**
 
-### 场景 1: 在 proto 根目录中
-```
-project/
-    proto/          <- 当前位置
-        service.proto
-```
-运行: `cproto service` 或 `cproto`
+```bash
+# Ubuntu/Debian
+sudo apt install protobuf-compiler
 
-### 场景 2: 在项目根目录中
-```
-project/            <- 当前位置
-    proto/
-        service.proto
-```
-运行: `cproto` 或 `cproto proto/service`
-
-### 场景 3: 在 proto 子目录中
-```
-project/
-    proto/
-        book/       <- 当前位置
-            book.proto
-            price.proto
-        author/
-            author.proto
-```
-运行: `cproto book` 或 `cproto` (编译当前目录所有文件)
-
-### 场景 4: 复杂依赖关系
-```
-project/
-    proto/
-        book/
-            book.proto      # 导入 "author/author.proto" 和 "book/price.proto"
-            price.proto
-        author/
-            author.proto
-```
-运行: `cproto` (自动处理所有依赖关系)
-
-## 输出示例
-
-```
-Compiling 3 proto file(s)...
-  author.proto -> D:\project\proto\author
-  [OK] author.proto
-  book.proto -> D:\project\proto\book
-  [OK] book.proto
-  price.proto -> D:\project\proto\book
-  [OK] price.proto
-Compilation completed!
+# CentOS/RHEL
+sudo yum install protobuf-compiler
 ```
 
-## 错误处理
+### 2. 安装 Go 插件
 
-### 文件未找到
-```
-Warning: File not found: nonexistent
-No valid proto files found!
-```
-
-### 编译错误
-```
-  book.proto -> D:\project\proto\book
-  [FAIL] book.proto (Exit code: 1)
-    Proto root: D:\project\proto
-    Input file: book/book.proto
-```
-
-### 目录未找到
-```
-Error: No proto directory found! Please run from project root or proto directory.
-```
-
-## 安装和配置
-
-### 1. 确保已安装 protoc 和插件
-```powershell
-# 安装 protoc 编译器
-# 从 https://github.com/protocolbuffers/protobuf/releases 下载
-
-# 安装 Go 插件
+```bash
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
 ```
 
-### 2. 添加到 PowerShell 配置文件
-函数已自动添加到您的 PowerShell 配置文件中，重启 PowerShell 或运行 `. $PROFILE` 即可使用。
+### 3. 验证安装
 
-## 别名
-- `cproto` = `Compile-AllProtos`
+```powershell
+protoc --version
+protoc-gen-go --version
+```
 
-## 技术实现
+## 🚀 快速开始
 
-### 核心特性
-1. **智能参数处理**: 自动识别用户意图，处理各种输入格式
-2. **路径规范化**: 统一路径格式，确保跨平台兼容性
-3. **依赖解析**: 智能计算 proto_path，确保导入正确解析
-4. **错误友好**: 提供详细的错误信息和调试信息
+### 方法一：一键使用（推荐）
 
-### 兼容性
-- ✅ Windows PowerShell 5.1+
-- ✅ PowerShell Core 6.0+
-- ✅ 支持中文路径和文件名
-- ✅ 支持空格路径
-- ✅ 跨驱动器路径支持
+```powershell
+# 下载并立即使用
+iex (iwr -UseBasicParsing "https://raw.githubusercontent.com/iriskl/cproto/main/Microsoft.PowerShell_profile.ps1").Content
 
-## 常见问题
+# 现在就可以使用 cproto 命令了！
+cproto
+```
 
-### Q: 为什么编译失败？
-A: 检查以下几点：
-1. protoc 是否正确安装并在 PATH 中
-2. 相关插件是否已安装
-3. proto 文件语法是否正确
-4. 导入路径是否正确
+### 方法二：下载后使用
 
-### Q: 如何处理复杂的导入关系？
-A: `cproto` 会自动设置正确的 proto_path，通常不需要手动处理。确保所有相关的 proto 文件都在同一个 proto 根目录下。
+```powershell
+# 下载脚本文件
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/iriskl/cproto/main/Microsoft.PowerShell_profile.ps1" -OutFile "proto-compiler.ps1"
+
+# 导入函数到当前会话
+. .\proto-compiler.ps1
+
+# 开始使用
+cproto
+```
+
+### 方法三：永久安装到 PowerShell 配置
+
+```powershell
+# 备份现有配置（如果存在）
+if (Test-Path $PROFILE) {
+    Copy-Item $PROFILE "$PROFILE.backup.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+}
+
+# 下载并添加到 PowerShell 配置文件
+$scriptContent = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/iriskl/cproto/main/Microsoft.PowerShell_profile.ps1" -UseBasicParsing
+$scriptContent.Content | Add-Content -Path $PROFILE
+
+# 重新加载配置
+. $PROFILE
+
+# 现在每次打开 PowerShell 都可以使用 cproto 命令
+```
+
+## 📖 使用指南
+
+### 基本语法
+
+```powershell
+cproto [files...]
+```
+
+### 使用示例
+
+#### 编译所有 proto 文件
+
+```powershell
+# 编译当前项目中的所有 proto 文件
+cproto
+```
+
+#### 编译指定文件
+
+```powershell
+# 编译单个文件
+cproto user.proto
+
+# 自动添加 .proto 扩展名
+cproto user
+
+# 编译多个文件
+cproto user.proto order.proto
+
+# 混合使用
+cproto user order.proto
+```
+
+#### 路径支持
+
+```powershell
+# 使用相对路径
+cproto proto/user.proto
+cproto ./api/v1/user.proto
+
+# 使用绝对路径
+cproto "C:\Projects\MyApp\proto\user.proto"
+
+# 在 proto 子目录中直接编译
+cd proto/api/v1
+cproto user.proto
+```
+
+### 支持的项目结构
+
+✅ **简单项目结构**
+
+```
+project/
+├── proto/
+│   ├── user.proto
+│   └── order.proto
+└── main.go
+```
+
+✅ **复杂项目结构**
+
+```
+project/
+├── api/
+│   └── proto/
+│       ├── user/
+│       │   ├── user.proto
+│       │   └── profile.proto
+│       └── order/
+│           └── order.proto
+└── cmd/
+    └── server/
+        └── main.go
+```
+
+✅ **微服务项目结构**
+
+```
+microservices/
+├── user-service/
+│   └── proto/
+│       └── user.proto
+├── order-service/
+│   └── proto/
+│       └── order.proto
+└── shared/
+    └── proto/
+        └── common.proto
+```
+
+### 使用场景
+
+#### 场景 1：在项目根目录
+
+```powershell
+PS C:\MyProject> cproto
+Compiling 3 proto file(s)...
+  user.proto -> C:\MyProject\proto
+  order.proto -> C:\MyProject\proto
+  common.proto -> C:\MyProject\proto
+  [OK] user.proto
+  [OK] order.proto
+  [OK] common.proto
+Compilation completed!
+```
+
+#### 场景 2：在 proto 目录中
+
+```powershell
+PS C:\MyProject\proto> cproto user
+Compiling 1 proto file(s)...
+  user.proto -> C:\MyProject\proto
+  [OK] user.proto
+Compilation completed!
+```
+
+#### 场景 3：编译特定文件
+
+```powershell
+PS C:\MyProject> cproto proto/api/user.proto
+Compiling 1 proto file(s)...
+  user.proto -> C:\MyProject\proto\api
+  [OK] user.proto
+Compilation completed!
+```
+
+## 🔧 高级功能
+
+### 自动依赖解析
+
+脚本会自动处理 proto 文件之间的导入依赖关系：
+
+```protobuf
+// user.proto
+syntax = "proto3";
+import "common/types.proto";  // 自动解析导入
+```
+
+### 智能错误处理
+
+```powershell
+PS > cproto nonexistent.proto
+Warning: File not found: nonexistent.proto
+No valid proto files found!
+```
+
+### 详细的编译输出
+
+成功时显示简洁信息，失败时显示详细的调试信息：
+
+```powershell
+PS > cproto broken.proto
+Compiling 1 proto file(s)...
+  broken.proto -> C:\Project\proto
+  [FAIL] broken.proto (Exit code: 1)
+    Command: protoc --proto_path=proto --go_out=proto ...
+Compilation completed!
+```
+
+## 🚨 故障排除
+
+### 常见问题及解决方案
+
+#### 1. "protoc: command not found"
+
+```powershell
+# 检查 protoc 是否已安装
+protoc --version
+
+# 如果未安装，请按照前置要求部分重新安装
+```
+
+#### 2. "protoc-gen-go: program not found"
+
+```powershell
+# 重新安装 Go 插件
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+# 确保 $GOPATH/bin 在 PATH 中
+echo $env:PATH
+```
+
+#### 3. "No proto directory found"
+
+```powershell
+# 确保在正确的目录中运行
+# 以下任一目录都可以：
+cd your-project          # 项目根目录（包含 proto/ 子目录）
+cd your-project/proto     # proto 目录本身
+cd your-project/proto/api # proto 的任何子目录
+```
+
+#### 4. 导入路径错误
+
+确保您的 proto 文件中的导入路径相对于 proto 根目录：
+
+```protobuf
+// ✅ 正确
+import "api/user.proto";
+
+// ❌ 错误
+import "../api/user.proto";
+```
+
+### 调试技巧
+
+#### 检查环境
+
+```powershell
+# 检查所有相关工具
+protoc --version
+where.exe protoc-gen-go
+where.exe protoc-gen-go-grpc
+where.exe protoc-gen-grpc-gateway
+
+# 检查 Go 环境
+go env GOPATH
+go env GOBIN
+```
+
+#### 手动测试
+
+```powershell
+# 手动运行 protoc 命令进行调试
+protoc --proto_path=proto --go_out=proto --go_opt=paths=source_relative proto/user.proto
+```
+
+## 💡 最佳实践
+
+### 1. 项目结构建议
+
+```
+your-project/
+├── proto/              # 所有 .proto 文件的根目录
+│   ├── api/
+│   │   └── v1/
+│   │       ├── user.proto
+│   │       └── order.proto
+│   └── common/
+│       └── types.proto
+├── pkg/               # 生成的 Go 代码
+└── cmd/
+    └── server/
+        └── main.go
+```
+
+### 2. Proto 文件组织
+
+- 使用有意义的目录结构
+- 保持导入路径清晰简洁
+- 为不同的服务创建独立的目录
+
+
+
+## ⭐ 支持
+
+如果这个工具对您有帮助，请给个 Star ⭐！
