@@ -1,4 +1,4 @@
-# PowerShell Proto Compiler
+# protoc-go
 
 一个 Protocol Buffers 编译工具，专为 Go 项目设计，支持自动检测项目结构和智能文件编译。
 
@@ -65,7 +65,7 @@ protoc-gen-go --version
 
 ```powershell
 # 下载并立即使用
-iex (iwr -UseBasicParsing "https://raw.githubusercontent.com/iriskl/cproto/main/Microsoft.PowerShell_profile.ps1").Content
+iex (iwr -UseBasicParsing "https://raw.githubusercontent.com/iriskl/protoc-go/main/Microsoft.PowerShell_profile.ps1").Content
 
 # 现在就可以使用 cproto 命令了！
 cproto
@@ -75,10 +75,10 @@ cproto
 
 ```powershell
 # 下载脚本文件
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/iriskl/cproto/main/Microsoft.PowerShell_profile.ps1" -OutFile "proto-compiler.ps1"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/iriskl/protoc-go/main/Microsoft.PowerShell_profile.ps1" -OutFile "protoc-go.ps1"
 
 # 导入函数到当前会话
-. .\proto-compiler.ps1
+. .\protoc-go.ps1
 
 # 开始使用
 cproto
@@ -93,7 +93,7 @@ if (Test-Path $PROFILE) {
 }
 
 # 下载并添加到 PowerShell 配置文件
-$scriptContent = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/iriskl/cproto/main/Microsoft.PowerShell_profile.ps1" -UseBasicParsing
+$scriptContent = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/iriskl/protoc-go/main/Microsoft.PowerShell_profile.ps1" -UseBasicParsing
 $scriptContent.Content | Add-Content -Path $PROFILE
 
 # 重新加载配置
@@ -361,3 +361,4 @@ your-project/
 ## ⭐ 支持
 
 如果这个工具对您有帮助，请给个 Star ⭐！
+
